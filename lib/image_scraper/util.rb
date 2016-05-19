@@ -12,7 +12,11 @@ module ImageScraper
       #          'http://example.com/style.css
       #          but should get:
       #          'http://example.com/about/style.css
-      URI.parse(url).merge(URI.parse asset.to_s).to_s
+      begin
+        URI.parse(url).merge(URI.parse asset.to_s).to_s
+      rescue
+        return ""
+      end
     end
     
     def self.domain(url)
