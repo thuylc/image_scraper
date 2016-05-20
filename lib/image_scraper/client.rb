@@ -19,6 +19,11 @@ module ImageScraper
       images
     end
 
+    def image_style_sheet_urls
+      images = stylesheet_images if include_css_images
+      images
+    end
+
     def page_images
       urls = []
       return urls if doc.blank?
