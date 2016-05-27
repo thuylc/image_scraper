@@ -6,7 +6,7 @@ source "http://rubygems.org"
 gem "nokogiri"
 gem "css_parser"
 gem "rails"
-
+gem 'open_uri_w_redirect_to_https'
 # Add dependencies to develop your gem here.
 # Include everything needed to run rake, tests, features, etc.
 group :development do
