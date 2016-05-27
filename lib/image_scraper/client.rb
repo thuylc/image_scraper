@@ -3,24 +3,29 @@ module ImageScraper
   class Client
     attr_accessor :url, :convert_to_absolute_url, :include_css_images, :include_css_data_images, :doc
 
-    def initialize(url,options={})
+    def initialize(url,html_text=nil,options={})
       options.reverse_merge!(:convert_to_absolute_url=>true,:include_css_images=>true, :include_css_data_images=>false)
       @url = URI.escape(url)
       @convert_to_absolute_url = options[:convert_to_absolute_url]
       @include_css_images = options[:include_css_images]
       @include_css_data_images = options[:include_css_data_images]
-      html = open(@url).read rescue nil
-      @doc = html ? Nokogiri::HTML(html) : nil
+      
+      if html_text.present?
+        @doc = html_text
+      else
+        begin 
+          html = open(@url).read 
+        rescue Exception=> excep 
+          puts excep.inspect
+        end
+        @doc = html ? Nokogiri::HTML(html) : nil
+      end
+      
     end
 
     def image_urls
       images = page_images
       images += stylesheet_images if include_css_images
-      images
-    end
-
-    def image_style_sheet_urls
-      images = stylesheet_images if include_css_images
       images
     end
 
@@ -42,7 +47,7 @@ module ImageScraper
       stylesheets.each do |stylesheet|
         file = open(stylesheet) rescue next
         css = file.string rescue IO.read(file) rescue next
-
+  
         images += css.scan(/url\((.*?)\)/).collect do |image_url|
           image_url = URI.escape image_url[0]
           image_url = image_url.gsub(/([{}|\^\[\]\@`])/) {|s| CGI.escape(s)} # escape characters that URI.escape doesn't get
